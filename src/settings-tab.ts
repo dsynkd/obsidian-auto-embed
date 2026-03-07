@@ -1,6 +1,5 @@
 import AutoEmbedPlugin from "src/main";
 import { App, PluginSettingTab, Setting } from "obsidian";
-import { PreviewEmbedModal } from "src/preview-embed-modal";
 
 export enum FallbackOptions {
     ShowErrorMessage, // Default
@@ -141,18 +140,6 @@ export class AutoEmbedSettingTab extends PluginSettingTab {
             if (addBottomBorder)
                 setting.settingEl.style.borderBottom = "1px solid var(--background-modifier-border)";
         }
-
-        const previewTooltip = "Opens a modal (small window) to test with links with your settings";
-        new Setting(containerEl)
-            .setName("Preview Embed")
-            .setTooltip(previewTooltip)
-            .addButton(btn => btn
-                .setButtonText("Preview")
-                .setTooltip(previewTooltip)
-                .onClick(() => {
-                    const modal = new PreviewEmbedModal(plugin, "https://x.com/obsdmd/status/1739667211462316449");
-                    modal.open();
-                }))
 
         new Setting(containerEl)
             .setName("Dark mode")
