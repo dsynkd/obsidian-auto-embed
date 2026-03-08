@@ -25,9 +25,6 @@ export enum PreloadOptions {
 
 const supportedWebsites = [ "Twitter/X", "Imgur", "Reddit", "CodePen", "Google Docs", "SoundCloud", "Spotify", "Steam", "TikTok", "Instagram" ] as const;
 export type SupportedWebsites = (typeof supportedWebsites)[number];
-export type SupportedWebsitesMap = {
-    [key in SupportedWebsites]: boolean
-};
 
 export interface PluginSettings {
 	// General
@@ -35,8 +32,6 @@ export interface PluginSettings {
     preloadOption: PreloadOptions;
     suggestEmbed: boolean;
 
-    enabledWebsites: SupportedWebsitesMap;
-	
     // Google Docs
     googleDocsViewOption: GoogleDocsViewOptions;
 
@@ -56,13 +51,6 @@ export const DEFAULT_SETTINGS: PluginSettings = {
 	darkMode: true,
     preloadOption: PreloadOptions.Placeholder,
     suggestEmbed: true,
-
-    enabledWebsites: ResetEnabledWebsites(),
-    // enabledWebsites: new Map(Object.values(SupportedWebsites).map(website => [
-    //     website, 
-    //     // Set excluded websites to false (by default), set other websites to true.
-    //     (website !== SupportedWebsites.YouTube && website !== SupportedWebsites.Twitter),
-    // ])),
 
     googleDocsViewOption: GoogleDocsViewOptions.Preview,
 
@@ -91,31 +79,6 @@ export class AutoEmbedSettingTab extends PluginSettingTab {
         const settings = this.plugin.settings;
 
 		containerEl.empty();
-        
-        // Validate the user's current setting. 
-        function ValidateSettings(setting: PluginSettings, plugin: AutoEmbedPlugin) {
-            // console.log(JSON.stringify(setting.enabledWebsites));
-            if (setting.enabledWebsites && Object.keys(setting.enabledWebsites).length > 0) {
-                // Add any missing websites. Might happen if plugin updates with a new website
-                const newWebsites = supportedWebsites.filter(website => setting.enabledWebsites[website] === undefined);
-                
-                if (newWebsites.length > 0) {
-                    // console.log(`Adding ${newWebsites.length} websites to 'enabled website' list: ${newWebsites.toString()}`);
-                    newWebsites.forEach(website => setting.enabledWebsites[website] = true);
-                    
-                    plugin.saveSettings();
-                }
-            }
-            // If there is no websites at all
-            // Shouldn't happen since Obsidian automatically populates it using DEFAULT_SETTINGS but just in case.
-            else {
-                console.log("No enabled websites setting found. Adding all")
-                setting.enabledWebsites = ResetEnabledWebsites();
-                plugin.saveSettings();
-            }
-        }
-
-        ValidateSettings(settings, plugin);
 
         // Takes in a enum and converts it to a record with the key and value
         function EnumToRecord<T extends {[key: number]: string | number}>(e: T): Record<string, string>  {
@@ -182,25 +145,6 @@ export class AutoEmbedSettingTab extends PluginSettingTab {
                 })
             );
 
-        new Setting(containerEl)
-            .setName("Supported website")
-            .setHeading()
-            .setDesc("YouTube & Twitter/X is supported by Obsidian natively so it's off by default.");
-
-        for (const website in settings.enabledWebsites) {
-            const websiteSetting = new Setting(containerEl)
-                .setName(website)
-                .addToggle(toggle => toggle 
-                    .setValue(settings.enabledWebsites[website as SupportedWebsites])
-                    .onChange(async (value) => {
-                        settings.enabledWebsites[website as SupportedWebsites] = value;
-                        await this.plugin.saveSettings();
-                    })
-                );
-            
-            AddPadding(websiteSetting, true);
-        }
-        
         new Setting(containerEl)
             .setName("Google Docs")
             .setHeading()
@@ -314,23 +258,6 @@ export class AutoEmbedSettingTab extends PluginSettingTab {
             AddPadding(setting);
         });
 
-        const additionalInfo = new DocumentFragment();
-        additionalInfo.appendText("All values and units use ");
-        additionalInfo.appendChild(createEl("a", {text: "CSS Units", href: "https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Values_and_units#numbers_lengths_and_percentages"}))
-        additionalInfo.appendChild(createEl("br"))
-        additionalInfo.appendText("Reload any opened note to apply changes");
-        
-        additionalInfo.appendChild(createEl("br"))
-        additionalInfo.appendChild(createEl("br"))
-        
-        additionalInfo.appendText("Found bugs, have a website to embed, or want a feature?");
-        additionalInfo.appendChild(createEl("br"))
-        additionalInfo.appendChild(createEl("a", {text: "Create a GitHub issue", href: "https://github.com/GnoxNahte/obsidian-auto-embed/issues/new"}))
-        additionalInfo.appendText(" or ");
-        additionalInfo.appendChild(createEl("a", {text: "submit a Google Form", href: "https://forms.gle/xtuv4FVCKZ2tg9zK9"}))
-
-        new Setting(containerEl)
-            .setDesc(additionalInfo)
 	}
     
     // TODO: Reload markdown after closing settings
@@ -338,14 +265,4 @@ export class AutoEmbedSettingTab extends PluginSettingTab {
         // console.log("Hiding settings");
         // this.plugin.app.workspace.updateOptions();
     // }
-}
-
-function ResetEnabledWebsites(): SupportedWebsitesMap {
-    return Object.fromEntries(
-        supportedWebsites.map((website) => [
-            website, 
-            // Exclude some websites by default. Set the rest to true
-            // (website !== "Twitter/X"),
-        ])
-    ) as SupportedWebsitesMap
 }

@@ -10,7 +10,6 @@ import { DefaultFallbackEmbed } from "./defaultFallbackEmbed";
 import { GoogleDocsEmbed } from "./googleDocs";
 import { TikTokEmbed } from "./tiktok";
 import { SoundCloudEmbed } from "./soundcloud";
-import { SupportedWebsites } from "src/settings-tab";
 import { apiVersion } from "obsidian";
 import { InstagramEmbed } from "./instagram";
 // import { YouTubeEmbed } from "./youtube";
@@ -93,13 +92,6 @@ export class EmbedManager {
         const embedSource = this._instance.embedSources.find((source) => {
             return source.regex.test(url);
         }) ?? this._instance.defaultFallbackEmbed;
-
-        // TODO: Consider moving this up. If it's at the start, need to get the top level domain then filter the websites. 
-        //       Skips any regex and other checks too
-        const isWebsiteEnabled = !this._instance.plugin.settings.enabledWebsites[embedSource.name as SupportedWebsites];
-        if (embedSource !== this._instance.defaultFallbackEmbed && isWebsiteEnabled) {
-            return null;
-        }
 
         const options = embedSource.getOptions(alt);
 
