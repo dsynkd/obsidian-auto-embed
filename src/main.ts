@@ -143,6 +143,10 @@ export default class AutoEmbedPlugin extends Plugin {
 		await this.saveData(this.settings);
 	}
 
+	isDarkMode(): boolean {
+		return document.body.classList.contains("theme-dark");
+	}
+
 	private onPaste(e: ClipboardEvent, editor: Editor) {
 		if (e.defaultPrevented)
 			return;

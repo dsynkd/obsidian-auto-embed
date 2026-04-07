@@ -28,7 +28,6 @@ export type SupportedWebsites = (typeof supportedWebsites)[number];
 
 export interface PluginSettings {
 	// General
-	darkMode: boolean;
     preloadOption: PreloadOptions;
     suggestEmbed: boolean;
 
@@ -48,7 +47,6 @@ export interface PluginSettings {
 }
 
 export const DEFAULT_SETTINGS: PluginSettings = {
-	darkMode: true,
     preloadOption: PreloadOptions.Placeholder,
     suggestEmbed: true,
 
@@ -95,26 +93,6 @@ export class AutoEmbedSettingTab extends PluginSettingTab {
             return recordOutput;
         }
 
-        // Not perfect but just a tmp solution for adding bottom border and indenting the setting.
-        // Maybe create a new function just for adding a bottom border for the last element 
-        function AddPadding(setting: Setting, addBottomBorder = false) {
-            setting.settingEl.style.paddingLeft = "2em";
-            setting.settingEl.style.borderLeft = "1px solid var(--background-modifier-border)";
-            if (addBottomBorder)
-                setting.settingEl.style.borderBottom = "1px solid var(--background-modifier-border)";
-        }
-
-        new Setting(containerEl)
-            .setName("Dark mode")
-            .setDesc("If the website has an option for it, sets the default theme for embeds.")
-            .addToggle(toggle => toggle
-                .setValue(settings.darkMode)
-                .onChange(async (value) => {
-                    settings.darkMode = value;
-                    await this.plugin.saveSettings();
-                })
-            );
-        
         const preloadOptions = EnumToRecord(PreloadOptions);
         Object.entries(preloadOptions).forEach(([key, value]) => {
             preloadOptions[key] = value.replace("_", " + "); 
@@ -156,7 +134,7 @@ export class AutoEmbedSettingTab extends PluginSettingTab {
         googleDocsViewOptionDesc.appendChild(createEl("br"))
         googleDocsViewOptionDesc.appendText("Edit default - Editable and shows the header and toolbar");
         
-        const googleDocsOption = new Setting(containerEl)
+        new Setting(containerEl)
             .setName("Google Docs view options")
             .setDesc(googleDocsViewOptionDesc)
             .addDropdown(dropdown => dropdown
@@ -166,16 +144,11 @@ export class AutoEmbedSettingTab extends PluginSettingTab {
                     settings.googleDocsViewOption = GoogleDocsViewOptions[value as keyof typeof GoogleDocsViewOptions];
                     await this.plugin.saveSettings();
                 }))
-        AddPadding(googleDocsOption, true);
         
         new Setting(containerEl)
-            .setName("Fallback link")
+            .setName("Fallback")
             .setHeading()
-            // TODO: Change description, showing the current option description
-            // TODO: Add warning / error message when choosing Hide. Not recommended as only can see the link in source mode
-            .setDesc("Choose what the plugin does when the link isn't supported");
         
-        const fallbackSettings: Setting[] = [];
         const fallbackEmbedSettings: Setting[] = [];
 
         function UpdateFallbackEmbedVisibility() {
@@ -184,7 +157,7 @@ export class AutoEmbedSettingTab extends PluginSettingTab {
             })
         }
 
-        fallbackSettings.push(new Setting(containerEl)
+        new Setting(containerEl)
             .setName("Fallback options")
             .addDropdown(dropdown => dropdown
                 .addOptions(EnumToRecord(FallbackOptions))
@@ -194,9 +167,9 @@ export class AutoEmbedSettingTab extends PluginSettingTab {
                     UpdateFallbackEmbedVisibility();
                     
                     await this.plugin.saveSettings();
-                })))
+                }))
 
-        fallbackSettings.push(new Setting(containerEl)
+        new Setting(containerEl)
             .setName("Default width")
             .setDesc("Default is 100%, filling the width of the viewport")
             .addText(text => text
@@ -206,9 +179,9 @@ export class AutoEmbedSettingTab extends PluginSettingTab {
                     settings.fallbackWidth = value;
                     await this.plugin.saveSettings();
                 })
-            ))
+            )
 
-        fallbackSettings.push(new Setting(containerEl)
+        new Setting(containerEl)
             .setName("Default height")
             .setDesc("Default is 500px. Set to 100vh if u want it to be the height of the viewport")
             .addText(text => text
@@ -218,7 +191,7 @@ export class AutoEmbedSettingTab extends PluginSettingTab {
                     settings.fallbackHeight = value;
                     await this.plugin.saveSettings();
                 })
-            ))
+            )
 
         fallbackEmbedSettings.push(new Setting(containerEl)
             .setName("Auto link title")
@@ -253,11 +226,6 @@ export class AutoEmbedSettingTab extends PluginSettingTab {
 
         UpdateFallbackEmbedVisibility();
             
-        fallbackSettings.push(...fallbackEmbedSettings);
-        fallbackSettings.forEach(setting => {
-            AddPadding(setting);
-        });
-
 	}
     
     // TODO: Reload markdown after closing settings

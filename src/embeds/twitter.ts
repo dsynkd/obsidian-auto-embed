@@ -20,7 +20,7 @@ export class TwitterEmbed extends EmbedBase {
         
         // Embed post
         if (isPost)
-            url = `https://platform.twitter.com/embed/Tweet.html?dnt=true&theme=${this.plugin.settings.darkMode ? "dark" : "light"}&id=${regexMatch[2]}`;
+            url = `https://platform.twitter.com/embed/Tweet.html?dnt=true&theme=${this.plugin.isDarkMode() ? "dark" : "light"}&id=${regexMatch[2]}`;
         // Embed profile timeline
         else
             url = `https://syndication.twitter.com/srv/timeline-profile/screen-name/${regexMatch[1]}?dnt=true`

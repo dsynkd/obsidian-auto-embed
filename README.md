@@ -81,7 +81,7 @@ A brief overview with some steps on how the plugin works. *Not required to use t
 		Searches for `![](link)` and gets the [options](#custom-options) and URL from it.
 2. Get the URL from it, and convert it to the embed equivalent. Usually adds `/embed/` somewhere in the url. Results in the same website but focused only on the content. No headers, footer, etc
 	- Example: <br>https://codepen.io/jh3y/pen/LYNZwGm converts to https://codepen.io/jh3y/embed/LYNZwGm?default-tab=result&editable=true
-3. Replace those tags with `<iframe>` and apply options (width, height, dark mode, etc)
+3. Replace those tags with `<iframe>` and apply options (width, height, theme, etc)
 4. Some websites like Twitter, Reddit or Imgur, will send a resize message. The plugin uses the info to resize the embed.
 
 ## Roadmap

@@ -33,10 +33,10 @@ export class RedditEmbed extends EmbedBase {
         
         url = url.replace("www.reddit.com", "embed.reddit.com"); // Remove "www"
         
-        if (this.plugin.settings.darkMode)
+        if (this.plugin.isDarkMode())
         {
              // If it already has the query marker "?", add to the query with the theme, else just add the query
-            url += (url.contains('?') ? "&" : "?") + "theme=dark";
+            url += (url.includes('?') ? "&" : "?") + "theme=dark";
         }
 
         iframe.src = url;

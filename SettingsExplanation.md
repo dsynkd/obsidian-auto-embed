@@ -6,8 +6,8 @@ This is an explanation of all the settings that the plugin has.
 Opens this for you to test your embeds
 ![Preview embed](/readme-assets/settings/Preview-Settings.png)
 
-### Dark Mode
-Sets dark mode for supported websites:
+### Theme
+Supported embeds automatically follow Obsidian's current theme:
 - Reddit
 - Twitter/X
 
