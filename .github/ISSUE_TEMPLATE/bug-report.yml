@@ -49,7 +49,7 @@ body:
     attributes:
       label: Plugin Version
       description:  |  
-        What Auto Embed version are you using?
+        What Better Embeds version are you using?
         If left blank, I will assume you're on the latest version
       placeholder: 1.2.6
   - type: dropdown

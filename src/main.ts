@@ -165,7 +165,7 @@ export default class AutoEmbedPlugin extends Plugin {
 					editor.setCursor(newCursorPos);
 				}
 				else {
-					console.error(`Command "Auto Embed: Mark to embed" is available even when there isn't any selection`);
+					console.error(`Command "Better Embeds: Mark to embed" is available even when there isn't any selection`);
 				}
 
 				return true;
