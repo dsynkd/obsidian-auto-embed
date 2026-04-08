@@ -12,9 +12,27 @@ export function isURL(str: string) : boolean {
     return url.protocol === "http:" || url.protocol === "https:";
 }
 
+export function isVaultResourceURL(str: string): boolean {
+    let url: URL;
+
+    try {
+        url = new URL(str);
+    } catch {
+        return false;
+    }
+
+    return url.protocol === "app:" || url.protocol === "file:";
+}
+
 export function isLinkToImage(str: string) : boolean {
-    const url = new URL(str);
-    return /\.(jpg|jpeg|png|webp|avif|gif|svg)$/.test(url.pathname);
+    let path = str;
+    try {
+        path = new URL(str).pathname;
+    } catch {
+        // Keep raw path for relative links that are not valid URLs.
+    }
+
+    return /\.(jpg|jpeg|png|webp|avif|gif|svg)$/i.test(path);
 }
 
 export interface Dictionary<T> {

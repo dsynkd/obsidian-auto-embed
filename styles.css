@@ -172,6 +172,150 @@ iframe.default-fallback-embed {
     height: 100%;
 }
 
+/* Local code file embeds */
+.auto-embed-local-code {
+    margin: 0;
+    border: var(--border-width) solid var(--background-modifier-border);
+    background: var(--code-background, var(--background-secondary));
+}
+
+/* Outer: vertical scroll + clip horizontal. Inner row is full content height so gutter and code stay aligned. */
+.auto-embed-local-code-scroll {
+    max-height: 45rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    resize: vertical;
+}
+
+.auto-embed-local-code-inner {
+    display: flex;
+    align-items: stretch;
+    min-width: 0;
+}
+
+.auto-embed-local-code-gutter {
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 0.75em 0.65em 0.75em 0.85em;
+    text-align: right;
+    user-select: none;
+    white-space: pre;
+    font-family: var(--font-monospace);
+    font-size: var(--code-size);
+    line-height: var(--line-height-normal);
+    color: var(--text-faint);
+    border-right: 1px solid var(--background-modifier-border);
+    background: var(--code-background, var(--background-secondary));
+    min-width: 2.25em;
+    box-sizing: border-box;
+}
+
+/* Horizontal scroll only the code column so the line-number gutter (and its border) stay visible. */
+.auto-embed-local-code-body-wrap {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-x: auto;
+}
+
+.auto-embed-local-code-body {
+    flex: 1 1 auto;
+    margin: 0;
+    min-width: 0;
+    padding: 0.75em 1em;
+    background: transparent;
+    border: none;
+    font-family: var(--font-monospace);
+    font-size: var(--code-size);
+    line-height: var(--line-height-normal);
+}
+
+.auto-embed-local-code-content {
+    display: block;
+    white-space: pre;
+    tab-size: 4;
+}
+
+/* highlight.js tokens — prefer Obsidian code block variables */
+.auto-embed-local-code .hljs {
+    background: transparent;
+    color: var(--code-normal);
+}
+
+.auto-embed-local-code .hljs-comment,
+.auto-embed-local-code .hljs-quote {
+    color: var(--code-comment);
+}
+
+.auto-embed-local-code .hljs-keyword,
+.auto-embed-local-code .hljs-selector-tag,
+.auto-embed-local-code .hljs-addition {
+    color: var(--code-keyword);
+}
+
+.auto-embed-local-code .hljs-number,
+.auto-embed-local-code .hljs-string,
+.auto-embed-local-code .hljs-meta .hljs-string,
+.auto-embed-local-code .hljs-meta-string,
+.auto-embed-local-code .hljs-regexp,
+.auto-embed-local-code .hljs-attr,
+.auto-embed-local-code .hljs-attribute {
+    color: var(--code-string);
+}
+
+.auto-embed-local-code .hljs-variable,
+.auto-embed-local-code .hljs-template-variable,
+.auto-embed-local-code .hljs-symbol,
+.auto-embed-local-code .hljs-builtin,
+.auto-embed-local-code .hljs-title,
+.auto-embed-local-code .hljs-section {
+    color: var(--code-function);
+}
+
+.auto-embed-local-code .hljs-title.class_,
+.auto-embed-local-code .hljs-class .hljs-title,
+.auto-embed-local-code .hljs-type {
+    color: var(--code-property);
+}
+
+.auto-embed-local-code .hljs-tag,
+.auto-embed-local-code .hljs-name {
+    color: var(--code-tag);
+}
+
+.auto-embed-local-code .hljs-literal,
+.auto-embed-local-code .hljs-meta,
+.auto-embed-local-code .hljs-built_in,
+.auto-embed-local-code .hljs-bullet {
+    color: var(--code-value);
+}
+
+.auto-embed-local-code .hljs-subst,
+.auto-embed-local-code .hljs-operator {
+    color: var(--code-operator);
+}
+
+.auto-embed-local-code .hljs-punctuation {
+    color: var(--code-punctuation);
+}
+
+.auto-embed-local-code .hljs-emphasis {
+    font-style: italic;
+}
+
+.auto-embed-local-code .hljs-strong {
+    font-weight: bold;
+}
+
+/* Wikilink file embeds: hide Obsidian's default file box; keep plugin preview */
+.internal-embed.auto-embed-wikilink {
+    display: block;
+}
+
+.internal-embed.file-embed:has(+ .auto-embed-container),
+.auto-embed-container + .internal-embed.file-embed {
+    display: none;
+}
+
 /* Twitter */
 .twitter-embed {
     width: 600px;

@@ -66,6 +66,9 @@ export class DefaultFallbackEmbed extends EmbedBase {
     }
 
     async linkTitle(url: string) {
+        if (!url.startsWith("http://") && !url.startsWith("https://"))
+            return this.plugin.settings.fallbackDefaultLink;
+
         try {
             const response = await requestUrl({url: url, method: "GET"});
             

@@ -1,5 +1,5 @@
 import AutoEmbedPlugin from "src/main";
-import { BaseEmbedData, EmbedBase } from "./embedBase";
+import { BaseEmbedData, EmbedBase, EmbedLinkContext } from "./embedBase";
 import { TwitterEmbed } from "./twitter";
 import { RedditEmbed } from "./reddit";
 import { SteamEmbed } from "./steam";
@@ -12,6 +12,7 @@ import { TikTokEmbed } from "./tiktok";
 import { SoundCloudEmbed } from "./soundcloud";
 import { apiVersion } from "obsidian";
 import { InstagramEmbed } from "./instagram";
+import { LocalCodeFileEmbed } from "./localCodeFile";
 // import { YouTubeEmbed } from "./youtube";
 
 export class EmbedManager {
@@ -44,6 +45,7 @@ export class EmbedManager {
             new TikTokEmbed(plugin),
             new SoundCloudEmbed(plugin),
             new InstagramEmbed(plugin),
+            new LocalCodeFileEmbed(plugin),
         ];
 
         // Having some trouble replacing the embedded web pages from Obsidian. 
@@ -80,7 +82,7 @@ export class EmbedManager {
 
     // Gets the embed source for the url
     // Returns null if it can't / shouldn't be embedded.
-    static getEmbedData(url: string, alt: string): BaseEmbedData | null{
+    static getEmbedData(url: string, alt: string, context?: EmbedLinkContext): BaseEmbedData | null{
         const domain = this._instance.ignoredDomains.find(domain => {
             return domain.test(url);
         });
@@ -93,7 +95,7 @@ export class EmbedManager {
             return source.regex.test(url);
         }) ?? this._instance.defaultFallbackEmbed;
 
-        const options = embedSource.getOptions(alt);
+        const options = embedSource.getOptions(alt, url, context);
 
         if (!options.shouldEmbed)
             return null;

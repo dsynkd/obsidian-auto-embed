@@ -1,7 +1,14 @@
-import { requestUrl } from "obsidian";
+import { requestUrl, TFile } from "obsidian";
 import AutoEmbedPlugin from "src/main";
 import { PreloadOptions, SupportedWebsites } from "src/settings-tab";
 import { Dictionary, Size } from "src/utility";
+
+/** Passed from the embed pipeline so sources can restrict how links are accepted (e.g. wikilinks only). */
+export interface EmbedLinkContext {
+	fromWikilink?: boolean;
+	/** When already resolved (e.g. wikilink); avoids scanning the vault on every transaction. */
+	resolvedVaultFile?: TFile;
+}
 
 export class BaseEmbedData {
     embedSource: EmbedBase;
@@ -11,6 +18,8 @@ export class BaseEmbedData {
     alt?: string;
     width?: string;
     height?: string;
+    /** Set for vault-backed embeds when the file was resolved without a resource-URL lookup. */
+    vaultFile?: TFile;
     
     embedIframeEl: HTMLIFrameElement;
     embedContainer: HTMLDivElement;
@@ -78,14 +87,18 @@ export abstract class EmbedBase {
         container.appendChild(embed);
         
         // Check if it links to an image:
-        requestUrl({url: link, method: "HEAD"}).then(res => {
-            // console.log(res);
-            if (res.headers["content-type"].startsWith("image"))
-            {
-                container.classList.add("auto-embed-hide-display");
-                container.parentElement?.removeChild(container);
-            }
-        })
+        if (link.startsWith("http://") || link.startsWith("https://")) {
+            requestUrl({url: link, method: "HEAD"}).then(res => {
+                // console.log(res);
+                if (res.headers["content-type"].startsWith("image"))
+                {
+                    container.classList.add("auto-embed-hide-display");
+                    container.parentElement?.removeChild(container);
+                }
+            }).catch(() => {
+                // Ignore HEAD failures. The embed can still work.
+            });
+        }
 
         if (embed.classList.contains("error-embed")) {
             console.log("Container: " + embedData.embedContainer)
@@ -96,7 +109,17 @@ export abstract class EmbedBase {
             };
         }
         
-        const iframe = embed instanceof HTMLIFrameElement ? embed : embed.querySelector(':scope > iframe') as HTMLIFrameElement;
+        const iframe = embed instanceof HTMLIFrameElement ? embed : embed.querySelector(':scope > iframe') as HTMLIFrameElement | null;
+
+        // Some embeds are rendered as non-iframe elements (e.g. local code preview).
+        // Skip iframe-specific preload flow in that case.
+        if (!iframe) {
+            return {
+                embedData: embedData,
+                containerEl: container,
+                embed: embed,
+            };
+        }
 
         // Add placeholder
         let placeholder: HTMLDivElement | undefined;
@@ -165,7 +188,7 @@ export abstract class EmbedBase {
         }
     }
 
-    getOptions(alt: string): BaseEmbedData {
+    getOptions(alt: string, _link?: string, _context?: EmbedLinkContext): BaseEmbedData {
         const options: BaseEmbedData = new BaseEmbedData(this, alt);
 
         if (!alt)

@@ -1,7 +1,7 @@
-import { Editor, EditorPosition, MarkdownFileInfo, MarkdownView, Plugin } from 'obsidian';
+import { Editor, EditorPosition, MarkdownFileInfo, MarkdownView, Plugin, TFile } from 'obsidian';
 import { AutoEmbedSettingTab, DEFAULT_SETTINGS, PluginSettings } from 'src/settings-tab';
 import SuggestEmbed from 'src/suggestEmbed';
-import { isLinkToImage, isURL, regexUrl } from 'src/utility';
+import { isLinkToImage, isURL, isVaultResourceURL, regexUrl } from 'src/utility';
 import { embedField } from './embed-state-field';
 import { EmbedManager } from './embeds/embedManager';
 
@@ -59,11 +59,53 @@ export default class AutoEmbedPlugin extends Plugin {
 
 			const images = el.querySelectorAll('img');
 			images.forEach((image) => {
-				if (image.referrerPolicy !== "no-referrer" || !isURL(image.src) || isLinkToImage(image.src))
+				const isHttpUrl = isURL(image.src);
+				const isVaultResource = isVaultResourceURL(image.src);
+				if ((!isHttpUrl && !isVaultResource) || isLinkToImage(image.src))
+					return;
+
+				// Obsidian's web embeds set no-referrer. Vault resources don't.
+				if (!isVaultResource && image.referrerPolicy !== "no-referrer")
 					return;
 
 				this.handleImage(image);
 			})
+
+			const internalEmbeds = el.querySelectorAll<HTMLElement>(".internal-embed[src]");
+			internalEmbeds.forEach((embedEl) => {
+				// Avoid re-adding embeds on re-render.
+				if (embedEl.querySelector(":scope > .auto-embed-container"))
+					return;
+
+				const src = embedEl.getAttribute("src");
+				if (!src)
+					return;
+
+				const linkPath = src.split("|")[0].split("#")[0].trim();
+				if (!linkPath)
+					return;
+
+				const targetFile = this.app.metadataCache.getFirstLinkpathDest(linkPath, ctx.sourcePath);
+				if (!(targetFile instanceof TFile))
+					return;
+
+				const resourceUrl = this.app.vault.getResourcePath(targetFile);
+				if (isLinkToImage(resourceUrl))
+					return;
+
+				const embedData = EmbedManager.getEmbedData(resourceUrl, "", {
+					fromWikilink: true,
+					resolvedVaultFile: targetFile,
+				});
+				if (embedData === null)
+					return;
+
+				const embedResult = embedData.embedSource.create(resourceUrl, embedData);
+				embedData.embedSource.applyModifications(embedResult, embedData);
+
+				embedEl.appendChild(embedResult.containerEl);
+				embedEl.addClass("auto-embed-wikilink");
+			});
 
 			// const youTube = el.querySelectorAll('iframe');
 			// youTube.forEach((image) => {

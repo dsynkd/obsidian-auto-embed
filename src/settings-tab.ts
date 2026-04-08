@@ -31,6 +31,9 @@ export interface PluginSettings {
     preloadOption: PreloadOptions;
     suggestEmbed: boolean;
 
+    // Local vault code file embeds (![](path), ![[wikilink]])
+    localCodeEmbedLineNumbers: boolean;
+
     // Google Docs
     googleDocsViewOption: GoogleDocsViewOptions;
 
@@ -49,6 +52,8 @@ export interface PluginSettings {
 export const DEFAULT_SETTINGS: PluginSettings = {
     preloadOption: PreloadOptions.Placeholder,
     suggestEmbed: true,
+
+    localCodeEmbedLineNumbers: false,
 
     googleDocsViewOption: GoogleDocsViewOptions.Preview,
 
@@ -119,6 +124,22 @@ export class AutoEmbedSettingTab extends PluginSettingTab {
                     settings.suggestEmbed = value;
                     if (settings.suggestEmbed)
                         plugin.registerSuggest();
+                    await this.plugin.saveSettings();
+                })
+            );
+
+        new Setting(containerEl)
+            .setName("Local code file embeds")
+            .setHeading()
+            .setDesc("For vault code files embedded with ![](path) or ![[wikilink]].");
+
+        new Setting(containerEl)
+            .setName("Line numbers")
+            .setDesc("Show a gutter with line numbers next to the file contents.")
+            .addToggle(toggle => toggle
+                .setValue(settings.localCodeEmbedLineNumbers)
+                .onChange(async (value) => {
+                    settings.localCodeEmbedLineNumbers = value;
                     await this.plugin.saveSettings();
                 })
             );
